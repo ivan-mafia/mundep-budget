@@ -14,15 +14,25 @@ layout: home
       function drawChart() {
 
         var data = google.visualization.arrayToDataTable([
-          ['Программа', '%'],
-{% for program in site.data.mo7.2021.program %}
-          ['{{ program.name }}',     {{ program.percent }}],
+          ['Программа', '%', 'key'],
+{% for program in site.data.mo7.2021.program.programs %}
+          ['{{ program.name }}',     {{ program.sum }}, '{{ program.key }}'],
 {% endfor %}
         ]);
 
         var options = {
           title: 'Бюджет МО7'
         };
+
+        var subProgramDict = {};
+{% for program in site.data.mo7.2021.program.programs %}
+        subProgramDict['{{program.key}}'] = [
+            ['{{program.name}}', 'тыс. руб.', 'key'],
+  {% for subprogram in program.subprograms %}
+            ['{{subprogram.name}}', {{subprogram.sum}} ,'{{subprogram.key}}'],
+  {% endfor %}
+        ];
+{% endfor %}
 
         var chart = new google.visualization.PieChart(document.getElementById('piechart'));
         var subChart = new google.visualization.PieChart(document.getElementById('programInformirovanie'));
@@ -31,6 +41,8 @@ layout: home
           var selectedItem = chart.getSelection()[0];
           if (selectedItem) {
             var program = data.getValue(selectedItem.row, 0);
+            var key = data.getValue(selectedItem.row, 2);
+            console.log(key);
             console.log(selectedItem);
             console.log(program);
             var subOptions = {
@@ -38,11 +50,7 @@ layout: home
             };
             var subProg1 = 'Выпуск и распространение периодического печатного муниципального средства массовой информации газеты «Василеостровская перспектива»';
             var subProg2 = 'Выпуск и распространение справочно-информационного издания «Бюллетень Муниципального округа №7» - с текстами официальных публикаций муниципальных правовых актов, принятых органами МСУ МО МО №7';
-            var subData = google.visualization.arrayToDataTable([
-              [program, 'тыс. руб.'],
-              [subProg1,     1440],
-              [subProg2,      120]
-            ]);
+            var subData = google.visualization.arrayToDataTable(subProgramDict[key]);
             subChart.draw(subData, subOptions);
           }
         }
