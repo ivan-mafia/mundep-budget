@@ -14,9 +14,9 @@ layout: home
       function drawChart() {
 
         var data = google.visualization.arrayToDataTable([
-          ['Программа', '%', 'key'],
+          ['Программа', 'тыс. руб.', 'key'],
 {% for program in site.data.mo7.2021.program.programs %}
-          ['{{ program.name }}',     {{ program.sum }}, '{{ program.key }}'],
+          ['{{ program.key }}: {{ program.name }}',     {{ program.sum }}, '{{ program.key }}'],
 {% endfor %}
         ]);
 
@@ -27,37 +27,60 @@ layout: home
         var subProgramDict = {};
 {% for program in site.data.mo7.2021.program.programs %}
         subProgramDict['{{program.key}}'] = [
-            ['{{program.name}}', 'тыс. руб.', 'key'],
+            ['{{ program.key }}: {{ program.name }}', 'тыс. руб.', 'key'],
   {% for subprogram in program.subprograms %}
-            ['{{subprogram.name}}', {{subprogram.sum}} ,'{{subprogram.key}}'],
+            ['{{ subprogram.key }}: {{ subprogram.name }}', {{subprogram.sum}} ,'{{ subprogram.key }}'],
   {% endfor %}
         ];
 {% endfor %}
 
+{% for program in site.data.mo7.2021.program.programs %}
+  {% for subprogram in program.subprograms %}
+          subProgramDict['{{subprogram.key}}'] = [
+              ['{{ subprogram.key }}: {{ subprogram.name }}', 'тыс. руб.', 'key'],
+    {% for subsubprogram in subprogram.subprograms %}
+              ['{{ subsubprogram.key }}: {{ subsubprogram.name }}', {{subsubprogram.sum}} ,'{{ subsubprogram.key }}'],
+    {% endfor %}
+          ];
+  {% endfor %}
+{% endfor %}
+
+
         var chart = new google.visualization.PieChart(document.getElementById('piechart'));
         var subChart = new google.visualization.PieChart(document.getElementById('programInformirovanie'));
-        
+        var subSubChart = new google.visualization.PieChart(document.getElementById('subprogramInformirovanie'));
+
+        var subData = []
+
         function selectHandler() {
           var selectedItem = chart.getSelection()[0];
           if (selectedItem) {
             var program = data.getValue(selectedItem.row, 0);
             var key = data.getValue(selectedItem.row, 2);
-            console.log(key);
-            console.log(selectedItem);
-            console.log(program);
             var subOptions = {
               title: program
             };
-            var subProg1 = 'Выпуск и распространение периодического печатного муниципального средства массовой информации газеты «Василеостровская перспектива»';
-            var subProg2 = 'Выпуск и распространение справочно-информационного издания «Бюллетень Муниципального округа №7» - с текстами официальных публикаций муниципальных правовых актов, принятых органами МСУ МО МО №7';
-            var subData = google.visualization.arrayToDataTable(subProgramDict[key]);
+            subData = google.visualization.arrayToDataTable(subProgramDict[key]);
             subChart.draw(subData, subOptions);
           }
         }
 
-        google.visualization.events.addListener(chart, 'select', selectHandler);    
-        chart.draw(data, options);
+        function subSelectHandler() {
+          var selectedItem = subChart.getSelection()[0];
+          if (selectedItem) {
+            var program = subData.getValue(selectedItem.row, 0);
+            var key = subData.getValue(selectedItem.row, 2);
+            var subOptions = {
+              title: program
+            };
+            var subSubData = google.visualization.arrayToDataTable(subProgramDict[key]);
+            subSubChart.draw(subSubData, subOptions);
+          }
+        }
 
+        google.visualization.events.addListener(chart, 'select', selectHandler);
+        google.visualization.events.addListener(subChart, 'select', subSelectHandler);       
+        chart.draw(data, options);
       }
     </script>
   </head>
@@ -65,5 +88,6 @@ layout: home
     2021 year
     <div id="piechart" style="width: 900px; height: 500px;"></div>
     <div id="programInformirovanie" style="width: 900px; height: 500px;"></div>
+    <div id="subprogramInformirovanie" style="width: 900px; height: 500px;"></div>
   </body>
 </html>
