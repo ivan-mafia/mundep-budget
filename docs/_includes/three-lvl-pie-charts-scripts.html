@@ -1,0 +1,77 @@
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+  google.charts.load('current', {'packages':['corechart']});
+  google.charts.setOnLoadCallback(drawChart);
+
+  function drawChart() {
+
+    var data = google.visualization.arrayToDataTable([
+      ['Программа', 'тыс. руб.', 'key'],
+{% for program in include.program.programs %}
+      ['{{ program.key }}: {{ program.name }}',     {{ program.sum }}, '{{ program.key }}'],
+{% endfor %}
+    ]);
+
+    var options = {
+      title: '{{page.title}} {{page.mo}} {{page.year}}'
+    };
+
+    var subProgramDict = {};
+{% for program in include.program.programs %}
+    subProgramDict['{{program.key}}'] = [
+        ['{{ program.key }}: {{ program.name }}', 'тыс. руб.', 'key'],
+{% for subprogram in program.subprograms %}
+        ['{{ subprogram.key }}: {{ subprogram.name }}', {{subprogram.sum}} ,'{{ subprogram.key }}'],
+{% endfor %}
+    ];
+{% endfor %}
+
+{% for program in include.program.programs %}
+{% for subprogram in program.subprograms %}
+      subProgramDict['{{subprogram.key}}'] = [
+          ['{{ subprogram.key }}: {{ subprogram.name }}', 'тыс. руб.', 'key'],
+{% for subsubprogram in subprogram.subprograms %}
+          ['{{ subsubprogram.key }}: {{ subsubprogram.name }}', {{subsubprogram.sum}} ,'{{ subsubprogram.key }}'],
+{% endfor %}
+      ];
+{% endfor %}
+{% endfor %}
+
+
+    var chart = new google.visualization.PieChart(document.getElementById('{{include.pieChart1}}'));
+    var subChart = new google.visualization.PieChart(document.getElementById('{{include.pieChart2}}'));
+    var subSubChart = new google.visualization.PieChart(document.getElementById('{{include.pieChart3}}'));
+
+    var subData = []
+
+    function selectHandler() {
+      var selectedItem = chart.getSelection()[0];
+      if (selectedItem) {
+        var program = data.getValue(selectedItem.row, 0);
+        var key = data.getValue(selectedItem.row, 2);
+        var subOptions = {
+          title: program
+        };
+        subData = google.visualization.arrayToDataTable(subProgramDict[key]);
+        subChart.draw(subData, subOptions);
+      }
+    }
+
+    function subSelectHandler() {
+      var selectedItem = subChart.getSelection()[0];
+      if (selectedItem) {
+        var program = subData.getValue(selectedItem.row, 0);
+        var key = subData.getValue(selectedItem.row, 2);
+        var subOptions = {
+          title: program
+        };
+        var subSubData = google.visualization.arrayToDataTable(subProgramDict[key]);
+        subSubChart.draw(subSubData, subOptions);
+      }
+    }
+
+    google.visualization.events.addListener(chart, 'select', selectHandler);
+    google.visualization.events.addListener(subChart, 'select', subSelectHandler);       
+    chart.draw(data, options);
+  }
+</script>
