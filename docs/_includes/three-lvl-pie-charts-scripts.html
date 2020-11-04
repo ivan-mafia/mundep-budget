@@ -8,7 +8,7 @@
     var data = google.visualization.arrayToDataTable([
       ['Программа', 'тыс. руб.', 'key'],
 {% for program in include.program.programs %}
-      ['{{ program.key }}: {{ program.name }}',     {{ program.sum }}, '{{ program.key }}'],
+      ['{{ program.key }}: {{ program.name }} {{program.sum}}',     {{ program.sum }}, '{{ program.key }}'],
 {% endfor %}
     ]);
 
@@ -19,9 +19,9 @@
     var subProgramDict = {};
 {% for program in include.program.programs %}
     subProgramDict['{{program.key}}'] = [
-        ['{{ program.key }}: {{ program.name }}', 'тыс. руб.', 'key'],
+        ['{{ program.key }}: {{ program.name }} {{program.sum}}', 'тыс. руб.', 'key'],
 {% for subprogram in program.subprograms %}
-        ['{{ subprogram.key }}: {{ subprogram.name }}', {{subprogram.sum}} ,'{{ subprogram.key }}'],
+        ['{{ subprogram.key }}: {{ subprogram.name }} {{subprogram.sum}}', {{subprogram.sum}} ,'{{ subprogram.key }}'],
 {% endfor %}
     ];
 {% endfor %}
@@ -29,9 +29,9 @@
 {% for program in include.program.programs %}
 {% for subprogram in program.subprograms %}
       subProgramDict['{{subprogram.key}}'] = [
-          ['{{ subprogram.key }}: {{ subprogram.name }}', 'тыс. руб.', 'key'],
+          ['{{ subprogram.key }}: {{ subprogram.name }} {{subprogram.sum}}', 'тыс. руб.', 'key'],
 {% for subsubprogram in subprogram.subprograms %}
-          ['{{ subsubprogram.key }}: {{ subsubprogram.name }}', {{subsubprogram.sum}} ,'{{ subsubprogram.key }}'],
+          ['{{ subsubprogram.key }}: {{ subsubprogram.name }} {{subsubprogram.sum}}', {{subsubprogram.sum}} ,'{{ subsubprogram.key }}'],
 {% endfor %}
       ];
 {% endfor %}
