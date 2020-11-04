@@ -31,6 +31,8 @@ layout: home
           var selectedItem = chart.getSelection()[0];
           if (selectedItem) {
             var program = data.getValue(selectedItem.row, 0);
+            console.log(selectedItem);
+            console.log(program);
             var subOptions = {
               title: program
             };
