@@ -1,0 +1,99 @@
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+  google.charts.load('current', {'packages':['corechart', 'table']});
+  google.charts.setOnLoadCallback(drawSheetName);
+
+  function drawSheetName() {
+    var queryString = encodeURIComponent('SELECT C, D, A, B, E label C "name", D "sum", A "key", B "parentKey", E "desc"');
+
+    var query = new google.visualization.Query(
+        'https://docs.google.com/spreadsheets/d/1sk4VVW_recjcmrEisuhRJnSSQ-iO6FYM00IFE7UDkmA/gviz/tq?sheet=Income&headers=1&tq=' + queryString);
+    query.send(handleSampleDataQueryResponse);
+  }
+
+  function handleSampleDataQueryResponse(response) {
+    if (response.isError()) {
+        alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+        return;
+      }
+
+    
+    var data = response.getDataTable();
+    var view = new google.visualization.DataView(data);
+    view.setRows(data.getFilteredRows([{column: 3, value: null}]))
+    var currentKey = null;
+    var generalTitle = '{{page.title}} {{page.mo}} {{page.year}} (тыс. руб.)';
+
+    var options = {
+      title: generalTitle,
+      cssClassNames: { 
+      headerRow: 'headerRow',
+      tableRow: 'tableRow',
+      oddTableRow: 'oddTableRow',
+      selectedTableRow: 'selectedTableRow',
+      // hoverTableRow: 'hoverTableRow',
+      headerCell: 'headerCell',
+      tableCell: 'tableCell',
+      rowNumberCell: 'rowNumberCell'
+    }   
+    };
+
+    var chart = new google.visualization.PieChart(document.getElementById('pieChart1'));
+    var table = new google.visualization.Table(document.getElementById('tableDiv2'));
+    
+    function selectHandler() {
+      var selectedItem = chart.getSelection()[0];
+      if (selectedItem) {
+        currentKey = view.getValue(selectedItem.row, 2);
+        options.title = view.getValue(selectedItem.row, 0)
+
+        view.setRows(data.getFilteredRows([{column: 3, value: currentKey}]))
+        chart.draw(view, options);
+        table.draw(view, options);
+      }
+    }
+
+    function selectTableHandler() {
+      var selectedItem = table.getSelection()[0];
+      if (selectedItem) {
+        currentKey = view.getValue(selectedItem.row, 2);
+        options.title = view.getValue(selectedItem.row, 0)
+
+        view.setRows(data.getFilteredRows([{column: 3, value: currentKey}]))
+        chart.draw(view, options);
+        table.draw(view, options);
+      }
+    }
+
+    google.visualization.events.addListener(chart, 'select', selectHandler);
+    google.visualization.events.addListener(table, 'select', selectTableHandler);
+
+    chart.draw(view, options);
+    table.draw(view, options);
+
+    document.getElementById('backButton').onclick = function() {
+
+      if (currentKey != null) {
+        var lastIndexDot = currentKey.lastIndexOf(".");
+        if (lastIndexDot == -1) {
+          currentKey = null;
+        } else {
+          currentKey = currentKey.slice(0, lastIndexDot);
+        }
+      }
+
+      view.setRows(data.getFilteredRows([{column: 3, value: currentKey}]));
+      var title = null;
+      if (currentKey == null) {
+        title = generalTitle;
+      } else {
+        title = data.getValue(data.getFilteredRows([{column: 2, value: currentKey}])[0], 0);
+      }
+
+      options.title = title
+
+      chart.draw(view, options);
+      table.draw(view, options);
+    }
+  }
+</script>
