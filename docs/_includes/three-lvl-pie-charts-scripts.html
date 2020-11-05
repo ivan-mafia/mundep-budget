@@ -13,7 +13,7 @@
     ]);
 
     var options = {
-      title: '{{page.title}} {{page.mo}} {{page.year}}'
+      title: '{{page.title}} {{page.mo}} {{page.year}} (тыс. руб.)'
     };
 
     var subProgramDict = {};
@@ -47,7 +47,7 @@
     function selectHandler() {
       var selectedItem = chart.getSelection()[0];
       if (selectedItem) {
-        var program = data.getValue(selectedItem.row, 0);
+        var program = data.getValue(selectedItem.row, 0) + ' (тыс. руб.)';
         var key = data.getValue(selectedItem.row, 2);
         var subOptions = {
           title: program
@@ -60,7 +60,7 @@
     function subSelectHandler() {
       var selectedItem = subChart.getSelection()[0];
       if (selectedItem) {
-        var program = subData.getValue(selectedItem.row, 0);
+        var program = subData.getValue(selectedItem.row, 0) + ' (тыс. руб.)';
         var key = subData.getValue(selectedItem.row, 2);
         var subOptions = {
           title: program
