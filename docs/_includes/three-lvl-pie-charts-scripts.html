@@ -50,7 +50,7 @@
         var program = data.getValue(selectedItem.row, 0) + ' (тыс. руб.)';
         var key = data.getValue(selectedItem.row, 2);
         var subOptions = {
-          title: program
+          legend: 'none'
         };
         subData = google.visualization.arrayToDataTable(subProgramDict[key]);
         var subTable = new google.visualization.Table(document.getElementById('tableDiv2'));
@@ -66,7 +66,7 @@
         var program = subData.getValue(selectedItem.row, 0) + ' (тыс. руб.)';
         var key = subData.getValue(selectedItem.row, 2);
         var subOptions = {
-          title: program
+          legend: 'none'
         };
         var subSubData = google.visualization.arrayToDataTable(subProgramDict[key]);
         var subSubTable = new google.visualization.Table(document.getElementById('tableDiv3'));
