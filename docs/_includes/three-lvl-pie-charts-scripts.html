@@ -1,6 +1,6 @@
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
-  google.charts.load('current', {'packages':['corechart']});
+  google.charts.load('current', {'packages':['corechart', 'table']});
   google.charts.setOnLoadCallback(drawChart);
 
   function drawChart() {
@@ -19,9 +19,9 @@
     var subProgramDict = {};
 {% for program in include.program.programs %}
     subProgramDict['{{program.key}}'] = [
-        ['{{ program.key }}: {{ program.name }} {{program.sum}}', 'тыс. руб.', 'key'],
+        ['{{ program.key }}: {{ program.name }} {{program.sum}}', 'тыс. руб.', 'key', 'описание'],
 {% for subprogram in program.subprograms %}
-        ['{{ subprogram.key }}: {{ subprogram.name }} {{subprogram.sum}}', {{subprogram.sum}} ,'{{ subprogram.key }}'],
+        ['{{ subprogram.key }}: {{ subprogram.name }} {{subprogram.sum}}', {{subprogram.sum}} ,'{{ subprogram.key }}', '{{subprogram.description}}'],
 {% endfor %}
     ];
 {% endfor %}
@@ -29,9 +29,9 @@
 {% for program in include.program.programs %}
 {% for subprogram in program.subprograms %}
       subProgramDict['{{subprogram.key}}'] = [
-          ['{{ subprogram.key }}: {{ subprogram.name }} {{subprogram.sum}}', 'тыс. руб.', 'key'],
+          ['{{ subprogram.key }}: {{ subprogram.name }} {{subprogram.sum}}', 'тыс. руб.', 'key', 'описание'],
 {% for subsubprogram in subprogram.subprograms %}
-          ['{{ subsubprogram.key }}: {{ subsubprogram.name }} {{subsubprogram.sum}}', {{subsubprogram.sum}} ,'{{ subsubprogram.key }}'],
+          ['{{ subsubprogram.key }}: {{ subsubprogram.name }} {{subsubprogram.sum}}', {{subsubprogram.sum}} ,'{{ subsubprogram.key }}', '{{subsubprogram.description}}'],
 {% endfor %}
       ];
 {% endfor %}
@@ -50,9 +50,12 @@
         var program = data.getValue(selectedItem.row, 0) + ' (тыс. руб.)';
         var key = data.getValue(selectedItem.row, 2);
         var subOptions = {
-          title: program
+          legend: 'none'
         };
         subData = google.visualization.arrayToDataTable(subProgramDict[key]);
+        var subTable = new google.visualization.Table(document.getElementById('tableDiv2'));
+
+        subTable.draw(subData);
         subChart.draw(subData, subOptions);
       }
     }
@@ -63,9 +66,12 @@
         var program = subData.getValue(selectedItem.row, 0) + ' (тыс. руб.)';
         var key = subData.getValue(selectedItem.row, 2);
         var subOptions = {
-          title: program
+          legend: 'none'
         };
         var subSubData = google.visualization.arrayToDataTable(subProgramDict[key]);
+        var subSubTable = new google.visualization.Table(document.getElementById('tableDiv3'));
+
+        subSubTable.draw(subSubData);
         subSubChart.draw(subSubData, subOptions);
       }
     }
