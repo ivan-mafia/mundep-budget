@@ -17,7 +17,7 @@
         return;
       }
 
-    
+
     var data = response.getDataTable();
     var view = new google.visualization.DataView(data);
     view.setRows(data.getFilteredRows([{column: 3, value: null}]))
@@ -25,6 +25,7 @@
     var generalTitle = '{{page.title}} {{page.mo}} {{page.year}} (тыс. руб.)';
 
     var options = {
+      // legend: 'none',
       title: generalTitle,
       cssClassNames: { 
       headerRow: 'headerRow',
@@ -46,10 +47,18 @@
       if (selectedItem) {
         currentKey = view.getValue(selectedItem.row, 2);
         options.title = view.getValue(selectedItem.row, 0)
+        // no data to draw, so exit
+        if (data.getFilteredRows([{column: 3, value: currentKey}]).length == 0) {
+          currentKey = currentKey.slice(0, currentKey.lastIndexOf("."));
+          return;
+        }
 
         view.setRows(data.getFilteredRows([{column: 3, value: currentKey}]))
+        console.log(JSON.parse(JSON.stringify(view)));
+        console.log(data.getFilteredRows([{column: 3, value: currentKey}]));
         chart.draw(view, options);
         table.draw(view, options);
+        document.getElementById('backButton').style.visibility = 'visible';
       }
     }
 
@@ -58,10 +67,16 @@
       if (selectedItem) {
         currentKey = view.getValue(selectedItem.row, 2);
         options.title = view.getValue(selectedItem.row, 0)
+        // no data to draw, so exit
+        if (data.getFilteredRows([{column: 3, value: currentKey}]).length == 0) {
+          currentKey = currentKey.slice(0, currentKey.lastIndexOf("."));
+          return;
+        }
 
         view.setRows(data.getFilteredRows([{column: 3, value: currentKey}]))
         chart.draw(view, options);
         table.draw(view, options);
+        document.getElementById('backButton').style.visibility = 'visible';
       }
     }
 
@@ -86,6 +101,7 @@
       var title = null;
       if (currentKey == null) {
         title = generalTitle;
+        document.getElementById('backButton').style.visibility = 'hidden';
       } else {
         title = data.getValue(data.getFilteredRows([{column: 2, value: currentKey}])[0], 0);
       }
