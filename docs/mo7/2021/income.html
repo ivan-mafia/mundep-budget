@@ -7,6 +7,6 @@ year: 2021 (проект)
 Источник: <a href="{% link mo7/2021/mo7_2021_budget.doc %}">Проект бюджета МО 7 на 2021 год</a>
 {%- assign program = site.data.mo7.2021.income -%}
 
-{% include program-summary.html program=program %}
-{% include three-lvl-pie-charts-scripts.html program=program %}
-{% include three-lvl-pie-charts-view.html %}
+{%- include program-summary.html program_total="0" -%}
+{%- include three-lvl-pie-charts-sheets.html sheetId="1sk4VVW_recjcmrEisuhRJnSSQ-iO6FYM00IFE7UDkmA" sheetName="Income" -%}
+{%- include three-lvl-pie-charts-view.html -%}

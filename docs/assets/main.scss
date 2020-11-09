@@ -3,3 +3,80 @@
 ---
 
 @import "minima";
+
+.container {
+    max-width: 768px;
+    margin: auto;
+    max-height: 1200px;
+    font-size: 16px;
+  }
+
+.containerButton {
+    max-width: 768px;
+    padding-top: 20px;
+    width: 100%;
+}
+
+.container path {
+    width: 100%;
+}
+
+table {
+    // border-collapse: collapse;
+    width: 100%;
+    width: 740px;
+}
+
+td {
+    text-align:left;
+    font-size: 16px;
+    font-style: normal;
+    padding-left: 50%;
+    // text-transform: lowercase;
+}
+
+.hoverTable{
+    width: 100%;
+    border-collapse: collapse;
+}
+.hoverTable td{
+    padding:7px; border:#ffffff 1px solid;
+}
+/* Define the default color for all the table rows */
+.hoverTable tr{
+    background: #ffffff ;
+}
+/* Define the hover highlight color for the table row */
+.hoverTable tr:hover {
+        background-color: #f0f0f0;
+}
+
+// выделить сумму жирным
+tbody>tr>:nth-child(2) {
+    font-weight: bold;
+}
+
+// максимально сузить 3,4,5 столбцы
+tbody>tr>:nth-child(3) tbody>tr>:nth-child(4) tbody>tr>:nth-child(5) {
+    width: 1px;
+}
+
+// обращение к четным строкам таблицы
+// tbody>:nth-child(even){
+//     font-weight: bold;
+// }
+
+.button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    align-self: right;
+    float: right;
+    visibility: hidden;
+}

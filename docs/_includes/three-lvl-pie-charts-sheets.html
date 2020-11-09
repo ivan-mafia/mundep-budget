@@ -1,0 +1,133 @@
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+  google.charts.load('current', {'packages':['corechart', 'table']});
+  google.charts.setOnLoadCallback(drawSheetName);
+
+  function drawSheetName() {
+    var queryString = encodeURIComponent('SELECT C, D, A, B, E label C "name", D "sum", A "key", B "parentKey", E "desc"');
+
+    var query = new google.visualization.Query(
+        'https://docs.google.com/spreadsheets/d/{{ include.sheetId }}/gviz/tq?sheet={{ include.sheetName }}&headers=1&tq=' + queryString);
+    query.send(handleSampleDataQueryResponse);
+  }
+
+  function handleSampleDataQueryResponse(response) {
+    if (response.isError()) {
+        alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+        return;
+      }
+
+
+    var data = response.getDataTable();
+    var view = new google.visualization.DataView(data);
+    view.setRows(data.getFilteredRows([{column: 3, value: null}]))
+    var currentKey = null;
+    var generalTitle = '{{page.title}} {{page.mo}} {{page.year}} (тыс. руб.)';
+
+    var result = google.visualization.data.group(
+      view,
+      [3],
+      [{'column': 1, 'aggregation': google.visualization.data.sum, 'type': 'number'}]
+    ).getValue(0, 1);
+
+    var formatThousandsNoRounding = function(n, dp){
+  var e = '', s = e+n, l = s.length, b = n < 0 ? 1 : 0,
+      i = s.lastIndexOf('.'), j = i == -1 ? l : i,
+      r = e, d = s.substr(j+1, dp);
+  while ( (j-=3) > b ) { r = ',' + s.substr(j, 3) + r; }
+  return s.substr(0, j + 3) + r + 
+    (dp ? '.' + d + ( d.length < dp ? 
+        ('00000').substr(0, dp - d.length):e):e);
+};
+
+    document.getElementById('summaryHeader').innerHTML = 'Итого: ' + formatThousandsNoRounding(result, 0) + ' руб'; 
+
+    var options = {
+      // legend: 'none',
+      title: generalTitle,
+      cssClassNames: { 
+      headerRow: 'headerRow',
+      tableRow: 'tableRow',
+      oddTableRow: 'oddTableRow',
+      selectedTableRow: 'selectedTableRow',
+      hoverTableRow: 'hoverTableRow',
+      headerCell: 'headerCell',
+      tableCell: 'tableCell',
+      rowNumberCell: 'rowNumberCell'
+    }   
+    };
+
+    var chart = new google.visualization.PieChart(document.getElementById('pieChart1'));
+    var table = new google.visualization.Table(document.getElementById('tableDiv2'));
+    
+    function selectHandler() {
+      var selectedItem = chart.getSelection()[0];
+      if (selectedItem) {
+        currentKey = view.getValue(selectedItem.row, 2);
+        options.title = view.getValue(selectedItem.row, 0)
+        // no data to draw, so exit
+        if (data.getFilteredRows([{column: 3, value: currentKey}]).length == 0) {
+          currentKey = currentKey.slice(0, currentKey.lastIndexOf("."));
+          return;
+        }
+
+        view.setRows(data.getFilteredRows([{column: 3, value: currentKey}]))
+        console.log(JSON.parse(JSON.stringify(view)));
+        console.log(data.getFilteredRows([{column: 3, value: currentKey}]));
+        chart.draw(view, options);
+        table.draw(view, options);
+        document.getElementById('backButton').style.visibility = 'visible';
+      }
+    }
+
+    function selectTableHandler() {
+      var selectedItem = table.getSelection()[0];
+      if (selectedItem) {
+        currentKey = view.getValue(selectedItem.row, 2);
+        options.title = view.getValue(selectedItem.row, 0)
+        // no data to draw, so exit
+        if (data.getFilteredRows([{column: 3, value: currentKey}]).length == 0) {
+          currentKey = currentKey.slice(0, currentKey.lastIndexOf("."));
+          return;
+        }
+
+        view.setRows(data.getFilteredRows([{column: 3, value: currentKey}]))
+        chart.draw(view, options);
+        table.draw(view, options);
+        document.getElementById('backButton').style.visibility = 'visible';
+      }
+    }
+
+    google.visualization.events.addListener(chart, 'select', selectHandler);
+    google.visualization.events.addListener(table, 'select', selectTableHandler);
+
+    chart.draw(view, options);
+    table.draw(view, options);
+
+    document.getElementById('backButton').onclick = function() {
+
+      if (currentKey != null) {
+        var lastIndexDot = currentKey.lastIndexOf(".");
+        if (lastIndexDot == -1) {
+          currentKey = null;
+        } else {
+          currentKey = currentKey.slice(0, lastIndexDot);
+        }
+      }
+
+      view.setRows(data.getFilteredRows([{column: 3, value: currentKey}]));
+      var title = null;
+      if (currentKey == null) {
+        title = generalTitle;
+        document.getElementById('backButton').style.visibility = 'hidden';
+      } else {
+        title = data.getValue(data.getFilteredRows([{column: 2, value: currentKey}])[0], 0);
+      }
+
+      options.title = title
+
+      chart.draw(view, options);
+      table.draw(view, options);
+    }
+  }
+</script>
