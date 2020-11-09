@@ -7,7 +7,7 @@
     var queryString = encodeURIComponent('SELECT C, D, A, B, E label C "name", D "sum", A "key", B "parentKey", E "desc"');
 
     var query = new google.visualization.Query(
-        'https://docs.google.com/spreadsheets/d/1sk4VVW_recjcmrEisuhRJnSSQ-iO6FYM00IFE7UDkmA/gviz/tq?sheet=Income&headers=1&tq=' + queryString);
+        'https://docs.google.com/spreadsheets/d/{{ include.sheetId }}/gviz/tq?sheet={{ include.sheetName }}&headers=1&tq=' + queryString);
     query.send(handleSampleDataQueryResponse);
   }
 
@@ -23,6 +23,24 @@
     view.setRows(data.getFilteredRows([{column: 3, value: null}]))
     var currentKey = null;
     var generalTitle = '{{page.title}} {{page.mo}} {{page.year}} (тыс. руб.)';
+
+    var result = google.visualization.data.group(
+      view,
+      [3],
+      [{'column': 1, 'aggregation': google.visualization.data.sum, 'type': 'number'}]
+    ).getValue(0, 1);
+
+    var formatThousandsNoRounding = function(n, dp){
+  var e = '', s = e+n, l = s.length, b = n < 0 ? 1 : 0,
+      i = s.lastIndexOf('.'), j = i == -1 ? l : i,
+      r = e, d = s.substr(j+1, dp);
+  while ( (j-=3) > b ) { r = ',' + s.substr(j, 3) + r; }
+  return s.substr(0, j + 3) + r + 
+    (dp ? '.' + d + ( d.length < dp ? 
+        ('00000').substr(0, dp - d.length):e):e);
+};
+
+    document.getElementById('summaryHeader').innerHTML = 'Итого: ' + formatThousandsNoRounding(result, 0) + ' руб'; 
 
     var options = {
       // legend: 'none',
